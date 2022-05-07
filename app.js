@@ -4,17 +4,14 @@ const db = require("./db");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const jwt = require("jsonwebtoken");
-const expressJwt = require("express-jwt");
+const { expressjwt } = require("express-jwt");
 //跨域
 app.all("*", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With, mytoken");
   res.header("Access-Control-Allow-Headers", "X-Requested-With, Authorization");
   res.setHeader("Content-Type", "application/json;charset=utf-8");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Content-Type,Content-Length, Authorization, Accept,X-Requested-With"
-  );
+  res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
   res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
   res.header("X-Powered-By", " 3.2.1");
   if (req.method == "OPTIONS") res.sendStatus(200);
@@ -25,7 +22,7 @@ const jwtKey = "loveyless";
 
 // expressJwt中间件 验证token
 app.use(
-  expressJwt({
+  expressjwt({
     credentialsRequired: true, //false不校验，游客也可以访问
     secret: jwtKey, //加密私钥，可换成别的
     algorithms: ["HS256"], //算法 ["HS256"]为默认值
@@ -59,16 +56,15 @@ db.then(
           });
         }
       );
-
     });
 
     //进入主页
     app.get("/home", (req, res, next) => {
+      //6.1.1之后的版本负载由req.user改为req.auth 里面除了包含负载 还多了两个参数 iat和exp 发布和到期时间
 
       res.json({
-        payload: req.user,
+        payload: req.auth,
       });
-
     });
   },
   (err) => {
